@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Excel file location
-file_path = '/Users/nathanaelkoch/Documents/Keskkonnaagentuur/andmed.xlsx'
+file_path = '/Documents/data.xlsx'
 
 # I used the read_excel() function to read the data, specifying sheet_name='sheet name' because there are three sheets in the Excel file
 reportTable = pd.read_excel(file_path, sheet_name='report') # DataFrame containing the 'report' table
@@ -168,9 +168,62 @@ pollutantReleaseTable['UnitName_valid'] = pollutantReleaseTable['UnitName'].appl
 print("Business Rule 7. All names in column 'UnitName' of table 'pollutantRelease' must be correctly spelled.")
 
 print(f'Number of rows passing business rule checks: {pollutantReleaseTable["UnitName_valid"].sum()}')
-print(f'Number of rows failing business rule checks: {(~pollutantReleaseTable["UnitName_valid"]).sum()}')
+print(f'Number of rows failing business rule checks: {(~pollutantReleaseTable["UnitName_valid"]).sum()}{'\n'}')
 
 # ---------------------------------------------------------------------------------------------------------
+# Function checkLong checks business rule 10.
+''' 
+10. In the 'facility' table, all data in the 'Long' column must be of type float and their values must be in the range -180 to 180.
+(Example: 01.05.4832 00:00:00 is invalid)
+''' 
+def checkLong(value):
+    try:
+        # Try to convert the value to float type
+        fvalue = float(value)
+        # Check that the value is in the range -180 to 180.
+        if -180 <= fvalue <= 180:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False # If conversion fails, the value is invalid.
+
+# Applying the function using the apply() method for the Long column    
+facilityTable['Long_valid'] = facilityTable['Long'].apply(checkLong)
+
+print("Business Rule 10. In the 'facility' table, all data in the 'Long' column must start with a letter or a number.")
+
+print(f'Number of rows that passed business rule checks: {facilityTable["Long_valid"].sum()}')
+print(f'Number of rows that did not pass business rule checks: {(~facilityTable["Long_valid"]).sum()} {'\n'}')
+
+# ------------------------------------------------------------------------------------------------------
+# Function checkFacilityName checks business rule 11.
+
+'''
+11. In the 'facility' table, all data in the 'FacilityName' column must start with a letter or a number.
+(Example: ?k. S.Krivickien?s kiauli? auginomo kompleksas, 'BALTIC PORK' SIA, c?ku komplekss 'Krastmalas' are invalid)
+'''
+
+def checkFacilityName(name):
+    # All data must start with a letter or a number.
+    if name[0].isalpha() or name[0].isdigit():
+        return True
+    else:
+        return False
+    
+
+# Applying the function using the apply() method for the FacilityName column    
+facilityTable['FacilityName_valid'] = facilityTable['FacilityName'].apply(checkFacilityName)
+
+print("Business rule 11. In the 'facility' table, all data in the 'FacilityName' column must start with a letter or a number.")
+
+print(f'Number of rows that passed business rule checks: {facilityTable["FacilityName_valid"].sum()}')
+print(f'Number of rows that did not pass business rule checks: {(~facilityTable["FacilityName_valid"]).sum()} {'\n'}')
+
+    
+# ---------------------------------------------------------------------------------------------------------
+# now, only part of the rows are displayed, but if you need to view all the data, then you need to use pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_rows', None)
 
 # Print indexes of rows that fail check for table reportTable
 print("\nRows failing business rule checks in reportTable:")
@@ -181,10 +234,18 @@ print(reportTable.loc[~reportTable["ReportID_valid"], "ReportID"])
 print("\nIndex  ReportingYear")
 print(reportTable.loc[~reportTable["ReportingYear_valid"], "ReportingYear"])
 
-
-
 print("\nIndex  CountryCode")
 print(reportTable.loc[~reportTable["CountryCode_valid"], "CountryCode"])
+
+# Print indexes of rows that fail check for table facilityTable
+print("\nRows failing business rule checks in facilityTable:")
+
+print("\nIndex  Long")
+# .loc shows in the 'facility' table which indexes are in the value False in the 'Long_valid' column
+print(facilityTable.loc[~facilityTable["Long_valid"], "Long"])
+
+print("\nIndex  FacilityName")
+print(facilityTable.loc[~facilityTable["FacilityName_valid"], "FacilityName"])
 
 # Print indexes of rows that fail the check for the pollutantReleaseTable
 print("\nRows failing business rule checks in pollutantReleaseTable:")

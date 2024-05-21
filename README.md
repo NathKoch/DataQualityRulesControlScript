@@ -20,6 +20,9 @@ This script is designed to validate data in an Excel file against specific busin
 7. **Unit Name**: All names in the 'UnitName' column of the 'pollutantRelease' table must be correctly spelled.
 8. **Total Quantity**: All data in the 'TotalQuantity' column of the 'pollutantRelease' table must be positive.
 9. **Accidental Quantity**: All data in the 'AccidentalQuantity' column of the 'pollutantRelease' table must be positive.
+10. **Longitude**: In the 'facility' table, all data in the 'Long' column must be of type float and their values must be in the range -180 to 180.
+11. **Facility Name**: In the 'facility' table, all data in the 'FacilityName' column must start with a letter or a number.
+
 
 ## Functions
 
@@ -35,6 +38,12 @@ This script is designed to validate data in an Excel file against specific busin
 ### `checkValidNames(vname)`
 - Checks if a value matches one of the valid names in a predefined list.
 
+### `checkLong(value)`
+- Checks if a value is a float and within the range -180 to 180.
+
+### `checkFacilityName(name)`
+- Checks if a string starts with a letter or a number.
+
 ## Usage
 
 1. Place the script in a directory with the required Excel file.
@@ -45,7 +54,10 @@ This script is designed to validate data in an Excel file against specific busin
 
 - The script prints the number of rows passing and failing each business rule check.
 - Detailed lists of rows failing each check are also printed for further analysis.
-
+- Now, only part of the rows are displayed, but if you need to view all the data, then you need to use pd.set_option('display.max_rows', None)
+```python
+ pd.set_option('display.max_rows', None)
+```
 ## Script Output
 
 ```plaintext
@@ -85,6 +97,15 @@ Business Rule 7. All names in column 'UnitName' of table 'pollutantRelease' must
 Number of rows passing business rule checks: 1554
 Number of rows failing business rule checks: 3
 
+Business Rule 10. In the 'facility' table, all data in the 'Long' column must start with a letter or a number.
+Number of rows that passed business rule checks: 21474
+Number of rows that did not pass business rule checks: 348 
+
+Business rule 11. In the 'facility' table, all data in the 'FacilityName' column must start with a letter or a number.
+Number of rows that passed business rule checks: 21448
+Number of rows that did not pass business rule checks: 374 
+
+
 Rows failing business rule checks in reportTable:
 
 Index  ReportID
@@ -99,6 +120,36 @@ Index  CountryCode
 16    FIN
 50    NOR
 Name: CountryCode, dtype: object
+
+Rows failing business rule checks in facilityTable:
+
+Index  Long
+272      01.02.8256 00:00:00
+342      01.02.3858 00:00:00
+352      01.09.9151 00:00:00
+377      01.05.9001 00:00:00
+379      01.01.9297 00:00:00
+                ...         
+19791    01.06.5958 00:00:00
+20621    01.11.3888 00:00:00
+20747    01.05.3397 00:00:00
+20837    01.05.7849 00:00:00
+21540    01.05.9532 00:00:00
+Name: Long, Length: 348, dtype: object
+
+Index  FacilityName
+680                             ?kininko V. Sadaunyko ?kis
+1748                                       'STARTERIS' SIA
+1987     'DRUVAS UNGURI' SIA, ražošanas objekts 'Jaunst...
+1988                                 'KORKALNS; SIA, ferma
+2001         'PARVENTAS SILTUMS; Ventspils pašvald?bas SIA
+                               ...                        
+21803                                                    –
+21809                                                    –
+21813                                                    –
+21817                                                    –
+21818        ''Gaiž?ni'' SIA _c?kkop?bas komplekss Tunk?ni
+Name: FacilityName, Length: 374, dtype: object
 
 Rows failing business rule checks in pollutantReleaseTable:
 
@@ -141,12 +192,22 @@ Name: UnitName, dtype: object
 - Python 3.12 or higher
 - `pandas` library
 - `numpy` library
-- `matplotlib` library (data visualization in the future)
+- `matplotlib` library (data visualization soon...)
 
-
+Running the Script
+Clone the repository:
+```bash
+git clone https://github.com/NathKoch/DataQualityRulesControlScript.git
+```
 To install the required libraries, use:
 ```bash
 pip install pandas numpy matplotlib
 ```
+Place your data tables in the script directory or modify the script to point to your data source.
+Run the script:
+```bash
+python DataQualityRulesControlScript.py
+```
 
-This script is a useful tool for ensuring data quality and integrity, making it easier to maintain accurate and reliable data sets.
+
+### This script is a useful tool for ensuring data quality and integrity, making it easier to maintain accurate and reliable data sets.
